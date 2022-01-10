@@ -60,7 +60,8 @@ const ins = async (what) => {
     todolist.insertMany([
       {
         date: day,
-        what: what
+        what: what,
+       
       },
     ], (err, result) => {
       if (err)
@@ -68,7 +69,7 @@ const ins = async (what) => {
 
       else
         console.log("jins",result);
-    }).clone();
+    });
     result=1;
   }
   return result;
@@ -94,15 +95,17 @@ app.post("/", async function (req, res) {
   console.log("postl " + req.body.items + " " + day);
   let item1 = req.body.items;
 
-  ins("Personal");
- await todolist.updateMany(
-    { date: day,what:"Personal" },
-    { $push: { todo: item1 },$push: {time:timeday }},
-    (err, result) => {
-      if (err) console.log(err);
-      else console.log("hir " + result.todo);
-    }
-  );
+ ins("Personal");
+  await todolist.findOneAndUpdate(
+    { date: day, what: "Personal" },
+    { $push: { todo: item1, time: timeday } }).exec(
+      (err, result) => {
+        if (err)
+          console.log(err);
+        else
+          console.log("hir " + result);
+      }
+    );
   res.redirect("/");
 });
 
@@ -127,7 +130,7 @@ app.post("/work", async (req, res) => {
   ins("Work");
   await todolist.findOneAndUpdate(
     { date: day,what:"Work" },
-    { $push: { todo: item1 },$push: {time:timeday } },
+    { $push: { todo: item1,time:timeday } }).exec(
     (err, result) => {
       if (err) console.log(err);
       else console.log("hiw " + result);
