@@ -74,54 +74,41 @@ const ins = async (what, item) => {
 };
 
 
-app.get("/", async function (req, res) {
+app.get("/:what", async function (req, res) {
 	let query = await todolist.find({ date: day });
 	let item=[];
-	if (query.find((x) => x.what === "Personal") === undefined) { console.log("hi")
+	if (query.find((x) => x.what === what) === undefined) { console.log("hi")
 	item.todo = [];
 }
-	else item=query.find((x) => x.what === "Personal");
+	else item=query.find((x) => x.what ===what);
 	console.log("hiff",item.todo.length);
 	res.render("index", {
 		days: day,
 		itemm: item,
 		title: "List",
-		rd: "/",
+		rd: "/"+what,
 	});
 });
 
-app.post("/", async function (req, res) {
-	console.log("postl " + req.body.items + " " + day);
+app.post("/:what", async function (req, res) {
+	console.log("postl " + req.body.items + " " + what);
 	let item1 = req.body.items;
 
 	await ins("Personal", item1);
 	todolist
 		.findOneAndUpdate(
-			{ date: day, what: "Personal" },
+			{ date: day, what: what},
 			{ $push: { todo: item1, time: new Date().toLocaleTimeString() } }
 		)
 		.exec((err, result) => {
 			if (err) console.log(err);
 			else console.log("hir " + result);
 		});
-	res.redirect("/");
+	res.redirect("/"+what);
 });
 
-app.get("/work", async (req, res) => {
-	let query = await todolist.find({ date: day });
-	let workitem=[];
-	let s =query.find((x) => x.what === "Work");
-	console.log("welcome to work");
-	if (s === undefined) workitem.todo = [];
-	else workitem=query.find((x) => x.what === "Work");
-	res.render("index", {
-		title: "work",
-		itemm: workitem,
-		days: day,
-		rd: "/work",
-	});
-});
-app.post("/work", async (req, res) => {
+
+/*app.post("/work", async (req, res) => {
 	console.log(req.body);
 	let item1 = req.body.items;
 	await ins("Work", item1);
@@ -135,7 +122,7 @@ app.post("/work", async (req, res) => {
 			else console.log("hiw " + result);
 		});
 	res.redirect("/work");
-});
+});*/
 
 app.post("/delete",async (req, res) => {
   let id_value=req.body.checkbox.split(":");
