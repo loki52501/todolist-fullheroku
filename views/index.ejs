@@ -28,14 +28,17 @@
       <h1><%= title %></h1>
     <h1> <%= days %>  </h1>
     </div>
-    <div class="box container">
-      <%  for(let i=0; i<itemm.length; i++) {%>
-        <div class="item">
-          <input type="checkbox">
-          <p>  <%= itemm[i]%></p>
-        </div>
-
-     <%}%>
+    <div class="box">
+      <%  for(let i=0; i<itemm.todo.length; i++) { %>
+        <form action="/delete" method="post">
+          <div class="item">
+            <input type="checkbox" name="checkbox" value='<%= itemm._id+":"+i+":"+itemm.what%>' onchange="this.form.submit()">
+            <p >  <%= itemm.todo[i]%></p>
+         
+          </div>
+        </form>
+       
+     <% } %>
 
 
     <form  action=<%= rd %> method="post">
