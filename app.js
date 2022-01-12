@@ -3,6 +3,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
+const _=require("lodash");
 const port = 8000;
 const mongoose = require("mongoose");
 const app = express();
@@ -12,9 +13,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname + "/public")));
 
 //connecting to mongodb
-const url = "mongodb://localhost:27017/";
+const credentials=__dirname+"/X509-cert-1046118905334779307.pem"
+const url = "mongodb+srv://cluster0.vffe1.mongodb.net/myFirstDatabase?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority";
 const dbname = "todolistdb";
-const connect = mongoose.connect(url + dbname);
+const connect =mongoose.connect(url,
+	{    ssl: true,
+		sslValidate: true,
+		sslKey: credentials,
+		sslCert: credentials},(err,res)=>{
+			if(err) console.log("like",err);
+			else console.log("rsy",res);
+		});
+		
 
 //schema for todolist
 let today = new Date();
@@ -36,12 +46,13 @@ const todolistschema = new mongoose.Schema({
 	todo: [String],
 	what: {
 		type: String,
-		collation: { locale: 'en_US', strength: 2 }, 
+		index:{collation: { locale: 'en_US', strength: 2 }, 
 		unique:true,
-	},
+	}},
 });
 
 todolistschema.index({ date: 1, what: 1 }, { unique: true });
+
 //creating collection
 
 const todolist = mongoose.model("todolists", todolistschema);
@@ -73,11 +84,18 @@ const ins = async (what, item) => {
 	return result;
 };
 
+app.get("/",(req,res)=>{
 
-app.get("/:what", async function (req, res) {
+
+	res.render("home");
+});
+
+app.get("/list/:what", async function (req, res) {
+	let what =_.capitalize(req.params.what);
+	console.log("hiya",what);
 	let query = await todolist.find({ date: day });
 	let item=[];
-	if (query.find((x) => x.what === what) === undefined) { console.log("hi")
+	if (query.find((x) => x.what === what) === undefined) { console.log("hi h")
 	item.todo = [];
 }
 	else item=query.find((x) => x.what ===what);
@@ -85,16 +103,18 @@ app.get("/:what", async function (req, res) {
 	res.render("index", {
 		days: day,
 		itemm: item,
-		title: "List",
-		rd: "/"+what,
+		title: what,
+		rd: "/list/"+what,
 	});
 });
 
-app.post("/:what", async function (req, res) {
+app.post("/list/:what", async function (req, res) {
+	let what =_.capitalize(req.params.what);
+	
 	console.log("postl " + req.body.items + " " + what);
 	let item1 = req.body.items;
 
-	await ins("Personal", item1);
+	await ins(what, item1);
 	todolist
 		.findOneAndUpdate(
 			{ date: day, what: what},
@@ -104,7 +124,7 @@ app.post("/:what", async function (req, res) {
 			if (err) console.log(err);
 			else console.log("hir " + result);
 		});
-	res.redirect("/"+what);
+	res.redirect("/list/"+what);
 });
 
 
@@ -145,7 +165,7 @@ app.post("/delete",async (req, res) => {
     else console.log(result);
   });*/
 
-	res.redirect("/");
+	res.redirect("/list/"+what);
 });
 
 app.listen(port, function () {

@@ -1,0 +1,4 @@
+/node_modules
+.prettierrc
+npm-debug.log
+/*.env
