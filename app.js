@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const _=require("lodash");
-const port = 8000;
+const port = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 const app = express();
 app.set("view engine", "ejs");
