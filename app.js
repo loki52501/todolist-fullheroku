@@ -85,12 +85,18 @@ const ins = async (what, item) => {
 };
 
 app.get("/",(req,res)=>{
-
+console.log("hi there",req.query.listname,req.body);
 
 	res.render("home");
 });
 
-app.get("/list/:what", async function (req, res) {
+app.post("/",(req,res)=>{
+	console.log("hi there",req.body);
+	
+		res.redirect("/list/"+req.body.listname);
+	});
+
+	app.get("/list/:what", async function (req, res) {
 	let what =_.capitalize(req.params.what);
 	console.log("hiya",what);
 	let query = await todolist.find({ date: day });
